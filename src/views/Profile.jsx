@@ -3,39 +3,31 @@ import ProfileLayout from "../components/layouts/ProfileLayout";
 import { Text, Box, Button } from "@chakra-ui/react";
 import { getAuth, signOut } from "firebase/auth";
 import app from "../../firebase-config";
-import axios from "axios";
-import { set } from "firebase/database";
 import Loading from "../components/Loading";
 import MPost from "../components/ui-elements/MPost";
 import { getCategoria, getPrivacidad } from "../components/utils/utils";
+import { fetchApiKey, getPosts } from "../utils/apiCalls/posts";
 
 function Profile() {
   const auth = getAuth(app);
   const [posts, setPosts] = useState([]);
   const [currentUserPosts, setCurrentUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  //pendiente para backend: traer solo las publicaciones del usuario actual
   useEffect(() => {
     async function fetchData() {
       try {
-        // Obtener la API key
-        const apiKeyResponse = await axios.get(
-          "http://localhost:8000/generate-api-key/",
-          { headers: { "API-Key": "mango" } }
-        );
-        const apiKey = apiKeyResponse.data.api_key;
+        setLoading(true);
 
-        // Obtener los posts utilizando la API key
-        const postsResponse = await axios.get(
-          "http://localhost:8000/api/muro/",
-          {
-            headers: { Authorization: `Api-Key ${apiKey}` },
-          }
-        );
-
-        // Establecer los posts en el estado
-        setPosts(postsResponse.data);
+        const posts = await getPosts();
+        setPosts({ posts, loading: false, error: null });
       } catch (error) {
         console.error("Error al obtener los posts:", error);
+        setPosts({
+          posts: [],
+          loading: false,
+          error: "Error al cargar los posts",
+        });
       } finally {
         setLoading(false);
       }
@@ -43,17 +35,6 @@ function Profile() {
 
     fetchData();
   }, []);
-
-  useEffect(() => {
-    // Filtrar las publicaciones del usuario actual
-    if (posts.length > 0) {
-      const currentUserEmail = auth.currentUser.email;
-      const currentUserPosts = posts.filter(
-        (post) => post.usuario === currentUserEmail
-      );
-      setCurrentUserPosts(currentUserPosts);
-    }
-  }, [posts, auth.currentUser]);
 
   return (
     <ProfileLayout

@@ -16,6 +16,7 @@ import { getAllCategories } from "./utils/utils";
 import app from "../../firebase-config";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
+import { createPost } from "../utils/apiCalls/posts";
 
 const MyModal = ({ isOpen, onClose }) => {
   const auth = getAuth(app);
@@ -29,29 +30,17 @@ const MyModal = ({ isOpen, onClose }) => {
     etiqueta: null,
   });
 
-  const onCreate = () => {
-    createPost(newPost); // Llamar a la función createPost con el nuevo post
-  };
-  async function createPost(newPost) {
-    setLoading(true);
+  const onCreate = async () => {
     try {
-      const apiKeyResponse = await axios.get(
-        "http://localhost:8000/generate-api-key/",
-        { headers: { "API-Key": "mango" } }
-      );
-      const apiKey = apiKeyResponse.data.api_key;
-      await axios.post("http://localhost:8000/api/muro/", newPost, {
-        headers: { Authorization: `Api-Key ${apiKey}` }, // Corrección en la sintaxis de template string
-      });
-
-      console.log("Post creado exitosamente");
+      setLoading(true);
+      await createPost(newPost);
       onClose();
     } catch (error) {
       console.error("Error al crear el post:", error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

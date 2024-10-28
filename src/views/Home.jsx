@@ -3,13 +3,13 @@ import GeneralLayout from "../components/layouts/GeneralLayout";
 import MPost from "../components/ui-elements/MPost";
 import { getAuth } from "firebase/auth";
 import app from "../../firebase-config";
-import axios from "axios";
 import Loading from "../components/Loading";
 import { Text } from "@chakra-ui/react";
 import { getCategoria, getPrivacidad } from "../components/utils/utils";
 import MyModal from "../components/MyModal";
 import MButton from "../components/ui-elements/MButton";
 import { DateTime } from "luxon";
+import { fetchApiKey, getPosts } from "../utils/apiCalls/posts";
 
 function Home() {
   // const postData = {
@@ -24,38 +24,29 @@ function Home() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    async function fetchData() {
-      try {
-        // Obtener la API key
-        const apiKeyResponse = await axios.get(
-          "http://localhost:8000/generate-api-key/",
-          { headers: { "API-Key": "mango" } }
-        );
-        const apiKey = apiKeyResponse.data.api_key;
-        const postsResponse = await axios.get(
-          "http://localhost:8000/api/muro/",
-          {
-            headers: { Authorization: `Api-Key ${apiKey}` },
-          }
-        );
-        const sortedPosts = postsResponse.data.sort((a, b) => {
-          const fechaA = DateTime.fromISO(a.fecha_publicacion); //es fromISO porque el formato es tipo "2024-09-23"
-          const fechaB = DateTime.fromISO(b.fecha_publicacion);
-          return fechaB.diff(fechaA).as("milliseconds");
-        });
-        setPosts(sortedPosts);
-      } catch (error) {
-        console.error("Error al obtener los posts:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchData();
   }, []);
+  async function fetchData() {
+    try {
+      // Obtener los posts usando la función exportada
+      const postsData = await getPosts();
+      const sortedPosts = postsData.sort((a, b) => {
+        const fechaA = DateTime.fromISO(a.fecha_publicacion); //es fromISO porque el formato es tipo "2024-09-23"
+        const fechaB = DateTime.fromISO(b.fecha_publicacion);
+        return fechaB.diff(fechaA).as("milliseconds");
+      });
+      setPosts(sortedPosts);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
   const [isOpen, setIsOpen] = useState(false);
 
-  const onClose = () => setIsOpen(false);
+  const onClose = () => {
+    setIsOpen(false);
+  };
   const onOpen = () => setIsOpen(true);
   return (
     <GeneralLayout avatar={auth.currentUser.photoURL}>

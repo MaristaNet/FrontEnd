@@ -10,9 +10,8 @@ function GeneralLayout({ children, avatar }) {
       templateAreas={`"header header"
                   "nav main"
                   "footer footer"`}
-      gridTemplateRows={"50px 100% 80px"}
+      gridTemplateRows={"50px 100% 90px"}
       gridTemplateColumns={"150px 1fr"}
-      height="76.8vh"
       gap="4"
     >
       <GridItem area={"header"}>
