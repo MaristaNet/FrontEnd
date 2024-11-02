@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import ProfileLayout from "../components/layouts/ProfileLayout";
-import { Text, Box, Button } from "@chakra-ui/react";
+import { Text, Box, Button, Stack, Flex } from "@chakra-ui/react";
 import { getAuth } from "firebase/auth";
-import { useNavigate } from "react-router-dom"; // Importar useNavigate
+import { useNavigate } from "react-router-dom"; 
 import app from "../../firebase-config";
 import axios from "axios";
 import Loading from "../components/Loading";
@@ -11,7 +11,7 @@ import { getCategoria, getPrivacidad } from "../components/utils/utils";
 
 function Profile() {
   const auth = getAuth(app);
-  const navigate = useNavigate(); // Inicializamos el hook de navegación
+  const navigate = useNavigate(); 
   const [data, setData] = useState({
     posts: [],
     loading: true,
@@ -53,19 +53,33 @@ function Profile() {
     return <Text>No has iniciado sesión.</Text>;
   }
 
+
+  const userProfile = JSON.parse(localStorage.getItem("userProfile")) || {};
+  const pronouns = userProfile.pronouns || "No especificado";
+  const email = currentUser ? currentUser.email : "No disponible";
+
   return (
     <ProfileLayout
       avatar={currentUser.photoURL || "https://bit.ly/broken-link"}
       username={currentUser.displayName || currentUser.email}
-      bio="Descripción de prueba"
+      bio={
+        <Stack spacing={1} mt={2}>
+          <Text>Descripcion: {userProfile.bio || "Descripción de prueba"}</Text>
+          <Text>Pronombres: {pronouns}</Text>
+          <Text>Correo electrónico: {email}</Text>
+        </Stack>
+      }
       grupo="default"
       noPublicaciones={currentUserPosts.length}
       noAmigos={0}
     >
-      {/* Botón para redirigir a la edición del perfil */}
-      <Button colorScheme="blue" onClick={() => navigate("/edit")} mt={4}>
-        Editar Perfil
-      </Button>
+      {/* Contenedor Flex para alinear la imagen y el botón */}
+      <Flex justify="space-between" align="center" mt={4} position="relative">
+        <Box flex="1" />
+        <Button colorScheme="blue" onClick={() => navigate("/edit")} position="absolute" top="10px"  left="10px">
+          Editar Perfil
+        </Button>
+      </Flex>
 
       <Box mt={4}>
         {data.loading ? (
