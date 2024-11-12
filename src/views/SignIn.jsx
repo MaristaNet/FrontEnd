@@ -1,20 +1,22 @@
-import { Box, Button, Flex, Input, Text, VStack, Image } from "@chakra-ui/react";
+import { Box, Button, Flex, Input, Text, VStack, Image, useToast } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import app from "../../firebase-config";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
-// Importación de imágenes                                                                                                       
+// importación de imágenes                                                                                                       
 import icon1 from "../assets/imagenes/arriba.png";
 import icon2 from "../assets/imagenes/abajo.png";
 import logoM from "../assets/imagenes/logo.png";
 
+//validación para las alertas del toast
 function SignIn() {
   const navigate = useNavigate();
   const auth = getAuth(app);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const toast = useToast();
 
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
@@ -23,12 +25,38 @@ function SignIn() {
         console.log("Se autenticó con el email", user.email);
         navigate("/home");
       })
-      .catch((error) => alert(error.message));
+      .catch((error) => {
+        console.log("Error code:", error.code); // imprime el código de error
+  
+        let errorMessage = "";
+  
+        switch (error.code) {
+          case "auth/invalid-email":
+            errorMessage = "El correo ingresado no es válido, favor de verificarlo";
+            break;
+          case "auth/missing-password":
+            errorMessage = "Por favor ingresa una contraseña";
+            break;
+          case "auth/missing-email":
+            errorMessage = "Por favor ingresa un correo electrónico";
+            break;
+          default:
+            errorMessage = "Oh no, ocurrió un error :c. Por favor intenta de nuevo.";
+        }
+  
+        toast({
+          title: "Error",
+          description: errorMessage,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      });
   };
 
   return (
     <Flex height="100vh">
-      {/* Left side with graphics and text */}
+      {/* lado izquierdo imagenes y texto */}
       <Box
         width="50%"
         bg="#f8f6ff"
@@ -39,19 +67,19 @@ function SignIn() {
         padding={10}
       >
         <VStack spacing={8} textAlign="center">
-          {/* Top icon with adjustable width and height */}
+          {/* iamegn de arriba agustable */}
           <Image src={icon1} width="2000px" height="400px" alt="Icono superior" />
 
           <Text fontSize="5xl" color="orange.400" fontWeight="bold">
             una comunidad.
           </Text>
 
-          {/* Bottom icon with adjustable width and height */}
+          {/* imagen de abajo agustable también*/}
           <Image src={icon2} width="2000px" height="400px" alt="Icono inferior" />
         </VStack>
       </Box>
 
-      {/* Right side with login form */}
+      {/* lado derecho con el login */}
       <Box
         width="50%"
         bg="#e3dbff"
@@ -64,7 +92,7 @@ function SignIn() {
         borderBottomRightRadius="md"
       >
         <Box width="300px" textAlign="center">
-          {/* Contenedor centrado del logo M */}
+          {/* contenedor centrado (ahhh me tomo mucho centrarlo no le muevan) del logo Marista */}
           <Box display="flex" justifyContent="center" alignItems="center" mb={4}>
             <Image src={logoM} width="200px" height="200px" alt="Logo M" />
           </Box>
