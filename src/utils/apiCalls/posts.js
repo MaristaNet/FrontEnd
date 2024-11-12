@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL, REACT_APP_MASTER_API_KEY } from '../../../config';
+import { API_URL, REACT_APP_MASTER_API_KEY } from '../../../config_example';
 
 export const fetchApiKey = async () => {
   try {

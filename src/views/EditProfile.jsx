@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { getAuth, updateProfile } from "firebase/auth";
 import app from "../../firebase-config";
-import Navbar from "../components/Navbar";
-import {
-  Box,
-  Input,
-  Button,
-  Text,
-  Stack,
-  Avatar,
-  Flex,
+import Navbar from "../components/Navbar"; 
+import { 
+  Box, 
+  Input, 
+  Button, 
+  Text, 
+  Stack, 
+  Avatar, 
+  Flex, 
+  useToast
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; 
 
 function EditProfile() {
   const [displayName, setDisplayName] = useState("");
@@ -19,17 +20,30 @@ function EditProfile() {
   const [pronouns, setPronouns] = useState("");
   const [email, setEmail] = useState("");
   const [image, setImage] = useState(null);
-
   const auth = getAuth(app);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
+  const location = useLocation();
+  const toast = useToast();
+  const fromRegistration = location.state?.fromRegistration || false;
 
   useEffect(() => {
     const userProfile = JSON.parse(localStorage.getItem("userProfile")) || {};
     setDisplayName(auth.currentUser.displayName || "");
-    setBio(userProfile.bio || "");
-    setPronouns(userProfile.pronouns || "");
-    setEmail(auth.currentUser.email || "");
-  }, [auth.currentUser]);
+    setBio(userProfile.bio || ""); 
+    setPronouns(userProfile.pronouns || ""); 
+    setEmail(auth.currentUser.email || ""); 
+
+    // Mostrar toast de instrucciones si el usuario viene del registro
+    if (fromRegistration) {
+      toast({
+        title: "Completa tu perfil",
+        description: "Por favor, ingresa el resto de tus datos para completar tu perfil.",
+        status: "info",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [auth.currentUser, fromRegistration, toast]);
 
   const handleUpdateProfile = () => {
     const user = auth.currentUser;
@@ -38,20 +52,35 @@ function EditProfile() {
       photoURL: image ? URL.createObjectURL(image) : user.photoURL,
     })
       .then(() => {
-        localStorage.setItem(
-          "userProfile",
-          JSON.stringify({
-            bio: bio || "Descripción de prueba",
-            pronouns: pronouns || "",
-            email: email || user.email,
-          })
-        );
+        localStorage.setItem("userProfile", JSON.stringify({
+          bio: bio || "Descripción de prueba", 
+          pronouns: pronouns || "",
+          email: email || user.email 
+        }));
 
-        console.log("Perfil actualizado correctamente");
-        navigate("/profile");
+        toast({
+          title: "Perfil actualizado",
+          description: "Tus cambios han sido guardados.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+
+        // Redirigir según la fuente de acceso
+        if (fromRegistration) {
+          navigate("/home");
+        } else {
+          navigate("/profile");
+        }
       })
       .catch((error) => {
-        console.error("Error al actualizar el perfil:", error.message);
+        toast({
+          title: "Error al actualizar el perfil",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       });
   };
 
@@ -64,31 +93,25 @@ function EditProfile() {
 
   return (
     <Box>
-      <Navbar />
+      <Navbar /> 
       <Box bg="orange.100" py={6} px={6}>
-        <Flex justify="space-between" align="center">
+        <Flex justify="space-between" align="center" >
           <Flex justify="center" flex="1">
-            <Avatar
-              size="xl"
-              src={
-                image
-                  ? URL.createObjectURL(image)
-                  : "https://bit.ly/broken-link"
-              }
+            <Avatar 
+              size="xl" 
+              src={image ? URL.createObjectURL(image) : "https://bit.ly/broken-link"} 
             />
           </Flex>
         </Flex>
       </Box>
 
       <Box textAlign="center" p={5}>
-        <Text fontSize="2xl" mb={5}>
-          Editar Perfil
-        </Text>
+        <Text fontSize="2xl" mb={5}>Editar Perfil</Text>
         <Stack spacing={4} align="center">
           <Input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
+            type="file" 
+            accept="image/*" 
+            onChange={handleImageChange} 
             width="300px"
             borderColor="orange.500"
           />
@@ -126,11 +149,11 @@ function EditProfile() {
           />
         </Stack>
         {/* Botón aplicar cambios*/}
-        <Button
-          onClick={handleUpdateProfile}
-          colorScheme="blue"
-          mt={4}
-          float="left"
+        <Button 
+          onClick={handleUpdateProfile} 
+          colorScheme="blue" 
+          mt={4} 
+          float="left" 
         >
           Aplicar Cambios
         </Button>
