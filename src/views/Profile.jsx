@@ -2,16 +2,17 @@ import React, { useEffect, useState, useMemo } from "react";
 import ProfileLayout from "../components/layouts/ProfileLayout";
 import { Text, Box, Button, Stack, Flex } from "@chakra-ui/react";
 import { getAuth } from "firebase/auth";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import app from "../../firebase-config";
 import axios from "axios";
 import Loading from "../components/Loading";
 import MPost from "../components/ui-elements/MPost";
 import { getCategoria, getPrivacidad } from "../components/utils/utils";
+import { getPosts } from "../utils/apiCalls/posts";
 
 function Profile() {
   const auth = getAuth(app);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [data, setData] = useState({
     posts: [],
     loading: true,
@@ -23,21 +24,16 @@ function Profile() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const apiKeyResponse = await axios.get(
-          "http://localhost:8000/generate-api-key/",
-          { headers: { "API-Key": process.env.REACT_APP_API_KEY } }
-        );
-        const apiKey = apiKeyResponse.data.api_key;
-
-        const postsResponse = await axios.get(
-          "http://localhost:8000/api/muro/",
-          { headers: { Authorization: `Api-Key ${apiKey}` } }
-        );
-
-        setData({ posts: postsResponse.data, loading: false, error: null });
+        const postsResponse = await getPosts();
+        setData({ posts: postsResponse, loading: false, error: null });
+        console.log("Data internal:", data);
       } catch (error) {
         console.error("Error al obtener los posts:", error);
-        setData({ posts: [], loading: false, error: "Error al cargar los posts" });
+        setData({
+          posts: [],
+          loading: false,
+          error: "Error al cargar los posts",
+        });
       }
     }
 
@@ -45,16 +41,19 @@ function Profile() {
   }, []);
 
   const currentUserPosts = useMemo(() => {
-    if (!currentUser) return [];
-    return data.posts.filter((post) => post.usuario === currentUser.email);
-  }, [data.posts, currentUser]);
+    if (!currentUser || !Array.isArray(data.posts) || data.posts.length === 0)
+      return [];
+    else return data.posts.filter((post) => post.usuario === currentUser.email);
+  }, [data, data.posts, currentUser]);
 
   if (!currentUser) {
     return <Text>No has iniciado sesión.</Text>;
   }
 
   // Obtener pronombres y correo del currentUser (esto es más confiable que localStorage)
-  const pronouns = currentUser.displayName ? "No especificado" : "No disponible"; 
+  const pronouns = currentUser.displayName
+    ? "No especificado"
+    : "No disponible";
   const email = currentUser.email;
 
   return (
@@ -63,7 +62,10 @@ function Profile() {
       username={currentUser.displayName || currentUser.email}
       bio={
         <Stack spacing={1} mt={2}>
-          <Text>Descripción: {currentUser.displayName || "Descripción no disponible"}</Text>
+          <Text>
+            Descripción:{" "}
+            {currentUser.displayName || "Descripción no disponible"}
+          </Text>
           <Text>Pronombres: {pronouns}</Text>
           <Text>Correo electrónico: {email}</Text>
         </Stack>
@@ -75,7 +77,13 @@ function Profile() {
       {/* Contenedor Flex para alinear la imagen y el botón */}
       <Flex justify="space-between" align="center" mt={4} position="relative">
         <Box flex="1" />
-        <Button colorScheme="blue" onClick={() => navigate("/edit")} position="absolute" top="10px" left="10px">
+        <Button
+          colorScheme="blue"
+          onClick={() => navigate("/edit")}
+          position="absolute"
+          top="10px"
+          left="10px"
+        >
           Editar Perfil
         </Button>
       </Flex>

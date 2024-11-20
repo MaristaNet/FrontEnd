@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL, REACT_APP_MASTER_API_KEY } from '../../../config_example';
+import { API_URL, REACT_APP_MASTER_API_KEY } from '../../../config';
 
 export const fetchApiKey = async () => {
   try {
@@ -15,9 +15,9 @@ export const fetchApiKey = async () => {
 
 export const getPosts = async () => {
   try {
-    const apiKey = await fetchApiKey()
-    const response = await axios.get(`${API_URL}/api/muro/`, {
-      headers: { Authorization: `Api-Key ${apiKey}` }
+
+    const response = await axios.get(`${API_URL}/post/`, {
+      headers: { Authorization: `Api-Key ${REACT_APP_MASTER_API_KEY}` }
     });
     return response.data;
   } catch (error) {
@@ -27,9 +27,9 @@ export const getPosts = async () => {
 };
 export const createPost = async (newPost) => {
   try {
-    const apiKey = await fetchApiKey()
-   const response= await axios.post(`${API_URL}/api/muro/`, newPost, {
-      headers: { Authorization: `Api-Key ${apiKey}` }, // Corrección en la sintaxis de template string
+
+   const response= await axios.post(`${API_URL}/post`, newPost, {
+      headers: { Authorization: `Api-Key ${REACT_APP_MASTER_API_KEY}` }, // Corrección en la sintaxis de template string
     });
     return response.data;
   } catch (error) {
