@@ -118,12 +118,10 @@ function EditProfile() {
       id: user.uid,
       presentacion: localuser.bio,
       foto: user.photoURL,
-      post: [],
       nombre: user.displayName,
       email: user.email,
       pronombres: localuser.pronouns,
       username: user.displayName,
-      contactos: [],
       carrera: career,
     };
     try {
