@@ -27,6 +27,7 @@ function EditProfile() {
   const [carreras, setCarreras] = useState([]);
   const [career, setCareer] = useState("");
   const auth = getAuth(app);
+  const [previousUser, setPreviousUser] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -63,6 +64,16 @@ function EditProfile() {
     }
     fetchData();
   }, []);
+  const verifyUserExists = async (user) => {
+    try {
+      const response = await getUsuario(user.uid);
+      console.log("response de verificar usuario", response);
+      return response.data;
+    } catch (error) {
+      console.error("Error al verificar el usuario:", error);
+      return null;
+    }
+  };
 
   const handleUpdateProfile = () => {
     const user = auth.currentUser;
@@ -82,9 +93,12 @@ function EditProfile() {
             email: email || user.email,
           })
         );
-        //si el getUsuario con la api actual regresa un estado de 404, entonces se debe crear un nuevo usuario
-        if (fromRegistration) handleNewUserDB();
-        else handleUpdateUserDB();
+        if (fromRegistration || verifyUserExists(user) === null) {
+          handleNewUserDB();
+        } else {
+          handleUpdateUserDB();
+        }
+
         toast({
           title: "Perfil actualizado",
           description: "Tus cambios han sido guardados.",
@@ -118,16 +132,18 @@ function EditProfile() {
       id: user.uid,
       presentacion: localuser.bio,
       foto: user.photoURL,
+      post: [],
+      contactos: [],
       nombre: user.displayName,
       email: user.email,
       pronombres: localuser.pronouns,
       username: user.displayName,
       carrera: career,
     };
+    console.log("body", body);
     try {
       const response = await createUsuario(body);
       console.log("response de crear usuario", response);
-      console.log("body", body);
     } catch (error) {
       console.error("Error al crear el usuario:", error);
     }
@@ -139,11 +155,9 @@ function EditProfile() {
       id: user.uid,
       presentacion: localuser.bio,
       foto: user.photoURL,
-      post: [],
       nombre: user.displayName,
       pronombres: localuser.pronouns,
       username: user.displayName,
-      contactos: [],
       carrera: career,
     };
     try {

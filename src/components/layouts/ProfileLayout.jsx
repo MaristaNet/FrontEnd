@@ -27,6 +27,8 @@ function ProfileLayout({
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
+        //limpiar el local storage
+        localStorage.removeItem("userProfile");
         console.log("Sesión cerrada exitosamente");
       })
       .catch((error) => {
