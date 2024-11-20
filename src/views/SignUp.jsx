@@ -41,9 +41,22 @@ function SignUp() {
         navigate("/edit", { state: { fromRegistration: true } });
       })
       .catch((error) => {
+        let errorMessage = "";
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            errorMessage =
+              "Ya existe un usuario registrado con ese e-mail. Por favor, registrate con otro perfil.";
+            break;
+          case "auth/weak-password":
+            errorMessage = "Tu contraseña debe tener al menos 6 caracteres";
+            break;
+          default:
+            errorMessage =
+              "Parece que hubo un error. Intenta de nuevo más tarde.";
+        }
         toast({
           title: "Error al registrarse",
-          description: error.message,
+          description: errorMessage,
           status: "error",
           duration: 9000,
           isClosable: true,
