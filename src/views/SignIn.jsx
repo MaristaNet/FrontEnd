@@ -1,11 +1,20 @@
-import { Box, Button, Flex, Input, Text, VStack, Image, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Text,
+  VStack,
+  Image,
+  useToast,
+} from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import app from "../../firebase-config";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
-// importación de imágenes                                                                                                       
+// importación de imágenes
 import icon1 from "../assets/imagenes/arriba.png";
 import icon2 from "../assets/imagenes/abajo.png";
 import logoM from "../assets/imagenes/logo.png";
@@ -26,13 +35,12 @@ function SignIn() {
         navigate("/home");
       })
       .catch((error) => {
-        console.log("Error code:", error.code); // imprime el código de error
-  
         let errorMessage = "";
-  
+
         switch (error.code) {
           case "auth/invalid-email":
-            errorMessage = "El correo ingresado no es válido, favor de verificarlo";
+            errorMessage =
+              "El correo ingresado no es válido, favor de verificarlo";
             break;
           case "auth/missing-password":
             errorMessage = "Por favor ingresa una contraseña";
@@ -40,10 +48,15 @@ function SignIn() {
           case "auth/missing-email":
             errorMessage = "Por favor ingresa un correo electrónico";
             break;
+          case "auth/invalid-credential":
+            errorMessage = "El usuario o contraseña son incorrectos";
+            break;
           default:
-            errorMessage = "Oh no, ocurrió un error :c. Por favor intenta de nuevo.";
+            console.log(error.code);
+            errorMessage =
+              "Oh no, ocurrió un error :c. Por favor intenta de nuevo.";
         }
-  
+
         toast({
           title: "Error",
           description: errorMessage,
@@ -68,14 +81,24 @@ function SignIn() {
       >
         <VStack spacing={8} textAlign="center">
           {/* iamegn de arriba agustable */}
-          <Image src={icon1} width="2000px" height="400px" alt="Icono superior" />
+          <Image
+            src={icon1}
+            width="2000px"
+            height="400px"
+            alt="Icono superior"
+          />
 
           <Text fontSize="5xl" color="orange.400" fontWeight="bold">
             una comunidad.
           </Text>
 
           {/* imagen de abajo agustable también*/}
-          <Image src={icon2} width="2000px" height="400px" alt="Icono inferior" />
+          <Image
+            src={icon2}
+            width="2000px"
+            height="400px"
+            alt="Icono inferior"
+          />
         </VStack>
       </Box>
 
@@ -93,7 +116,12 @@ function SignIn() {
       >
         <Box width="300px" textAlign="center">
           {/* contenedor centrado (ahhh me tomo mucho centrarlo no le muevan) del logo Marista */}
-          <Box display="flex" justifyContent="center" alignItems="center" mb={4}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            mb={4}
+          >
             <Image src={logoM} width="200px" height="200px" alt="Logo M" />
           </Box>
           <Text fontSize="4xl" fontWeight="extrabold" mb={4} color="Pink.500">
