@@ -15,7 +15,11 @@ import {
 } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getCarreras } from "../utils/apiCalls/carrera";
-import { createUsuario, updateUsuario } from "../utils/apiCalls/usuario";
+import {
+  createUsuario,
+  getUsuario,
+  updateUsuario,
+} from "../utils/apiCalls/usuario";
 
 function EditProfile() {
   const [displayName, setDisplayName] = useState("");
@@ -52,8 +56,9 @@ function EditProfile() {
       });
     }
   }, [auth.currentUser, fromRegistration, toast]);
+
   useEffect(() => {
-    async function fetchData() {
+    async function fetchCarreras() {
       try {
         const res = await getCarreras();
         console.log("carreras obtenidas", res);
@@ -62,20 +67,23 @@ function EditProfile() {
         console.log("error al obtener carreras", e);
       }
     }
-    fetchData();
-  }, []);
-  const verifyUserExists = async (user) => {
-    try {
-      const response = await getUsuario(user.uid);
-      console.log("response de verificar usuario", response);
-      return response.data;
-    } catch (error) {
-      console.error("Error al verificar el usuario:", error);
-      return null;
-    }
-  };
+
+    const verifyUserExists = async (user) => {
+      try {
+        const response = await getUsuario(user.uid);
+        console.log("response de verificar usuario", response);
+        setPreviousUser(response);
+      } catch (error) {
+        console.error("Error al verificar el usuario:", error);
+        setPreviousUser(null);
+      }
+    };
+    fetchCarreras();
+    verifyUserExists(auth.currentUser);
+  }, [auth]);
 
   const handleUpdateProfile = () => {
+    console.log("estoy usando la funcion de actualizar perfil");
     const user = auth.currentUser;
     updateProfile(user, {
       displayName: displayName || user.displayName,
@@ -93,7 +101,7 @@ function EditProfile() {
             email: email || user.email,
           })
         );
-        if (fromRegistration || verifyUserExists(user) === null) {
+        if (fromRegistration || previousUser === null) {
           handleNewUserDB();
         } else {
           handleUpdateUserDB();
@@ -126,6 +134,7 @@ function EditProfile() {
   };
 
   const handleNewUserDB = async () => {
+    console.log("estoy usando la funcion de crear usuario");
     const user = auth.currentUser;
     const localuser = JSON.parse(localStorage.getItem("userProfile"));
     const body = {

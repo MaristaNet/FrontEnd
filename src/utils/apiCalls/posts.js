@@ -16,9 +16,10 @@ export const fetchApiKey = async () => {
 export const getPosts = async () => {
   try {
 
-    const response = await axios.get(`${API_URL}/post/`, {
+    const response = await axios.get(`${API_URL}/post`, {
       headers: { Authorization: `Api-Key ${REACT_APP_MASTER_API_KEY}` }
     });
+        console.log("response", response.data.data);
     return response.data;
   } catch (error) {
     console.error("Error al obtener los datos del muro:", error);
@@ -31,6 +32,7 @@ export const createPost = async (newPost) => {
    const response= await axios.post(`${API_URL}/post`, newPost, {
       headers: { Authorization: `Api-Key ${REACT_APP_MASTER_API_KEY}` }, // Corrección en la sintaxis de template string
     });
+
     return response.data;
   } catch (error) {
     console.error("Error al crear el post:", error);
