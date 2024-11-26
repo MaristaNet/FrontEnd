@@ -217,14 +217,6 @@ function EditProfile() {
           />
           <Input
             type="text"
-            placeholder="Nombre completo"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            width="300px"
-            borderColor="orange.500"
-          />
-          <Input
-            type="text"
             placeholder="Nombre de usuario"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
