@@ -125,7 +125,7 @@ function SignIn() {
             <Image src={logoM} width="200px" height="200px" alt="Logo M" />
           </Box>
           <Text fontSize="4xl" fontWeight="extrabold" mb={4} color="Pink.500">
-            Log in
+            Iniciar sesión
           </Text>
           <Input
             placeholder="Email"
