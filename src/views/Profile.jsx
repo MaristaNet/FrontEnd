@@ -4,7 +4,6 @@ import { Text, Box, Button, Stack, Flex } from "@chakra-ui/react";
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import app from "../../firebase-config";
-import axios from "axios";
 import Loading from "../components/Loading";
 import MPost from "../components/ui-elements/MPost";
 import { getCategoria, getPrivacidad } from "../components/utils/utils";
@@ -20,52 +19,47 @@ function Profile() {
   });
 
   const currentUser = auth.currentUser;
+  const localProfile = JSON.parse(localStorage.getItem("userProfile")) || {};
+
+  // Validar si currentUser está definido antes de extraer propiedades
+  const { displayName, bio, pronouns, email, career } = {
+    displayName: localProfile.displayName || currentUser?.displayName || "Usuario",
+    bio: localProfile.bio || "Descripción no disponible",
+    career: localProfile.career || "Carrera no especificada",
+    pronouns: localProfile.pronouns || "No especificado",
+    email: currentUser?.email || "Correo no disponible",
+  };
 
   useEffect(() => {
     async function fetchData() {
       try {
         const postsResponse = await getPosts();
         setData({ posts: postsResponse, loading: false, error: null });
-        console.log("Data internal:", data);
       } catch (error) {
-        console.error("Error al obtener los posts:", error);
-        setData({
-          posts: [],
-          loading: false,
-          error: "Error al cargar los posts",
-        });
+        setData({ posts: [], loading: false, error: "Error al cargar los posts" });
       }
     }
-
     fetchData();
   }, []);
 
   const currentUserPosts = useMemo(() => {
-    if (!currentUser || !Array.isArray(data.posts) || data.posts.length === 0)
-      return [];
-    else return data.posts.filter((post) => post.usuario === currentUser.email);
-  }, [data, data.posts, currentUser]);
+    if (!currentUser || !Array.isArray(data.posts)) return [];
+    return data.posts.filter((post) => post.usuario === currentUser.email);
+  }, [data, currentUser]);
 
+  // Mostrar un mensaje si no hay un usuario autenticado
   if (!currentUser) {
     return <Text>No has iniciado sesión.</Text>;
   }
 
-  // Obtener pronombres y correo del currentUser (esto es más confiable que localStorage)
-  const pronouns = currentUser.displayName
-    ? "No especificado"
-    : "No disponible";
-  const email = currentUser.email;
-
   return (
     <ProfileLayout
       avatar={currentUser.photoURL || "https://bit.ly/broken-link"}
-      username={currentUser.displayName || currentUser.email}
+      username={displayName}
       bio={
         <Stack spacing={1} mt={2}>
-          <Text>
-            Descripción:{" "}
-            {currentUser.displayName || "Descripción no disponible"}
-          </Text>
+          <Text>Descripción: {bio}</Text>
+          <Text>Carrera: {career}</Text>
           <Text>Pronombres: {pronouns}</Text>
           <Text>Correo electrónico: {email}</Text>
         </Stack>
@@ -74,9 +68,9 @@ function Profile() {
       noPublicaciones={currentUserPosts.length}
       noAmigos={0}
     >
+
       {/* Contenedor Flex para alinear la imagen y el botón */}
-      <Flex justify="space-between" align="center" mt={4} position="relative">
-        <Box flex="1" />
+      <Flex justify="flex-end" mt={4} position="relative">
         <Button
           colorScheme="blue"
           onClick={() => navigate("/edit")}
@@ -88,6 +82,7 @@ function Profile() {
         </Button>
       </Flex>
 
+      {/* Muestra las publicaciones del usuario */}
       <Box mt={4}>
         {data.loading ? (
           <Loading />
@@ -97,7 +92,7 @@ function Profile() {
           currentUserPosts.map((post) => (
             <MPost
               key={post.id}
-              username={post.usuario}
+              username={displayName}
               avatar={currentUser.photoURL || "https://bit.ly/broken-link"}
               category={getCategoria(post.etiqueta)}
               privacy={getPrivacidad(post.privacidad)}
