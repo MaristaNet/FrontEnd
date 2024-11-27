@@ -153,6 +153,12 @@ function SignIn() {
           <Text fontSize="sm" color="grey">
             <NavLink to="/forgot-password">Olvidé mi contraseña</NavLink>
           </Text>
+          <Text fontSize="sm" color="grey">
+            ¿Aún no tienes una cuenta?{" "}
+            <NavLink to="/signup" style={{ color: "blue" }}>
+              Regístrate aquí
+            </NavLink>
+          </Text>
         </Box>
       </Box>
     </Flex>
