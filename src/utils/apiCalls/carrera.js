@@ -12,3 +12,15 @@ export const getCarreras = async () => {
       throw error;
     }
   };
+
+export const getCarrera = async (id) => {
+    try {
+      const response = await axios.get(`${API_URL}/carrera/${id}`, {
+        headers: { Authorization: `Api-Key ${REACT_APP_MASTER_API_KEY}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al obtener la carrera:", error);
+      throw error;
+    }
+  }

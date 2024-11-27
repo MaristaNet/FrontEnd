@@ -8,6 +8,7 @@ import Loading from "../components/Loading";
 import MPost from "../components/ui-elements/MPost";
 import { getCategoria, getPrivacidad } from "../components/utils/utils";
 import { getPosts } from "../utils/apiCalls/posts";
+import { getCarrera } from "../utils/apiCalls/carrera";
 
 function Profile() {
   const auth = getAuth(app);
@@ -17,14 +18,17 @@ function Profile() {
     loading: true,
     error: null,
   });
+  const [carreraName, setCarreraName] = useState("");
 
   const currentUser = auth.currentUser;
   const localProfile = JSON.parse(localStorage.getItem("userProfile")) || {};
 
   // Validar si currentUser está definido antes de extraer propiedades
   const { displayName, bio, pronouns, email, career } = {
-    displayName: localProfile.displayName || currentUser?.displayName || "Usuario",
+    displayName:
+      localProfile.displayName || currentUser?.displayName || "Usuario",
     bio: localProfile.bio || "Descripción no disponible",
+    //la career es un id, por lo que hay que mapearla a un string
     career: localProfile.career || "Carrera no especificada",
     pronouns: localProfile.pronouns || "No especificado",
     email: currentUser?.email || "Correo no disponible",
@@ -36,11 +40,20 @@ function Profile() {
         const postsResponse = await getPosts();
         setData({ posts: postsResponse, loading: false, error: null });
       } catch (error) {
-        setData({ posts: [], loading: false, error: "Error al cargar los posts" });
+        setData({
+          posts: [],
+          loading: false,
+          error: "Error al cargar los posts",
+        });
       }
     }
     fetchData();
-  }, []);
+    async function fetchCarrera(career) {
+      const carrera = await getCarrera(career);
+      setCarreraName(carrera.nombre);
+    }
+    fetchCarrera(career);
+  }, [career]);
 
   const currentUserPosts = useMemo(() => {
     if (!currentUser || !Array.isArray(data.posts)) return [];
@@ -59,7 +72,7 @@ function Profile() {
       bio={
         <Stack spacing={1} mt={2}>
           <Text>Descripción: {bio}</Text>
-          <Text>Carrera: {career}</Text>
+          <Text>Carrera: {carreraName}</Text>
           <Text>Pronombres: {pronouns}</Text>
           <Text>Correo electrónico: {email}</Text>
         </Stack>
@@ -68,7 +81,6 @@ function Profile() {
       noPublicaciones={currentUserPosts.length}
       noAmigos={0}
     >
-
       {/* Contenedor Flex para alinear la imagen y el botón */}
       <Flex justify="flex-end" mt={4} position="relative">
         <Button
