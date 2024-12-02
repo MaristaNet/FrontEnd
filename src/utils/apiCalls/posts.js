@@ -11,8 +11,8 @@ export const getPosts = async () => {
         console.log("response", response.data.data);
     return response.data.data;
   } catch (error) {
-    console.error("Error al obtener los datos del muro:", error);
-    throw error;
+    console.error("Error al obtener los datos del muro:", error.response.data);
+    throw error.response.data;
   }
 };
 export const createPost = async (newPost) => {
@@ -24,7 +24,7 @@ export const createPost = async (newPost) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error al crear el post:", error);
-    throw error;
+    console.error("Error al crear el post:", error.response.data);
+    throw error.response.data;
   } 
 }

@@ -10,6 +10,7 @@ import MyModal from "../components/MyModal";
 import MButton from "../components/ui-elements/MButton";
 import { DateTime } from "luxon";
 import { getPosts } from "../utils/apiCalls/posts";
+import { getLikesByPost } from "../utils/apiCalls/like";
 
 function Home() {
   // const postData = {
@@ -35,7 +36,18 @@ function Home() {
         const fechaB = DateTime.fromISO(b.fecha_publicacion);
         return fechaB.diff(fechaA).as("milliseconds");
       });
-      setPosts(sortedPosts);
+      const postConLikes = await Promise.all(
+        sortedPosts.map(async (post) => {
+          try {
+            const res = await getLikesByPost(post.id);
+            return { ...post, no_likes: res.total, likes: res.data };
+          } catch (e) {
+            console.log(e);
+            return { ...post, no_likes: 0, likes: [] };
+          }
+        })
+      );
+      setPosts(postConLikes);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -58,12 +70,15 @@ function Home() {
           posts.map((post) => (
             <MPost
               key={post.id}
+              id={post.id}
               username={post.usuario}
               avatar={null}
               category={getCategoria(post.etiqueta)}
               privacy={getPrivacidad(post.privacidad)}
-              // likes={post.likes.length}
+              no_likes={post.no_likes}
+              likes={post.likes}
               content={post.contenido}
+              onRefetch={fetchData}
             >
               {post.contenido}
             </MPost>

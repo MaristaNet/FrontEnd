@@ -10,8 +10,8 @@ export const createUsuario = async (usuario) => {
         });
         return response.data;
     } catch (error) {
-        console.error("Error al crear el usuario:", error);
-        throw error;
+        console.error("Error al crear el usuario:", error.response.data);
+        throw error.response.data;
     }
     }
 
@@ -22,8 +22,8 @@ export const getUsuario = async (id) => {
         });
         return response.data;
     } catch (error) {
-        console.error("Error al obtener el usuario:", error);
-        throw error;
+        console.error("Error al obtener el usuario:", error.response.data);
+        throw error.response.data;
     }
     }
 
@@ -34,7 +34,7 @@ export const updateUsuario = async (id, usuario) => {
         });
         return response.data;
     } catch (error) {
-        console.error("Error al actualizar el usuario:", error);
-        throw error;
+        console.error("Error al actualizar el usuario:", error.response.data);
+        throw error.response.data;
     }
     }
