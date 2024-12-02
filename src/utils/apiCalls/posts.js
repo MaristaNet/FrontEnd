@@ -1,17 +1,6 @@
 import axios from 'axios';
 import { API_URL, REACT_APP_MASTER_API_KEY } from '../../../config';
 
-export const fetchApiKey = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/generate-api-key/`, {
-      headers: { "API-Key": REACT_APP_MASTER_API_KEY }
-    });
-    return response.data.api_key;
-  } catch (error) {
-    console.error("Error al obtener la API Key:", error);
-    throw error;
-  }
-};
 
 export const getPosts = async () => {
   try {
@@ -20,7 +9,7 @@ export const getPosts = async () => {
       headers: { Authorization: `Api-Key ${REACT_APP_MASTER_API_KEY}` }
     });
         console.log("response", response.data.data);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("Error al obtener los datos del muro:", error);
     throw error;

@@ -9,7 +9,7 @@ import { getCategoria, getPrivacidad } from "../components/utils/utils";
 import MyModal from "../components/MyModal";
 import MButton from "../components/ui-elements/MButton";
 import { DateTime } from "luxon";
-import { fetchApiKey, getPosts } from "../utils/apiCalls/posts";
+import { getPosts } from "../utils/apiCalls/posts";
 
 function Home() {
   // const postData = {
@@ -62,7 +62,7 @@ function Home() {
               avatar={null}
               category={getCategoria(post.etiqueta)}
               privacy={getPrivacidad(post.privacidad)}
-              likes={post.likes.length}
+              // likes={post.likes.length}
               content={post.contenido}
             >
               {post.contenido}

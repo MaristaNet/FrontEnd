@@ -22,8 +22,8 @@ const MyModal = ({ isOpen, onClose }) => {
   const auth = getAuth(app);
   const [loading, setLoading] = useState(false);
   const [newPost, setNewPost] = useState({
-    id_usuario: auth.currentUser.uid,
-    usuario: auth.currentUser.email,
+    usuario: auth.currentUser.uid,
+    // usuario: auth.currentUser.email,
     contenido: null,
     imagen: null,
     privacidad: null,
